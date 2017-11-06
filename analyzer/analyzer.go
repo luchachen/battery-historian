@@ -66,8 +66,10 @@ const (
 	broadcastsLog   = "Broadcasts"
 	eventLog        = "Event"
 	kernelDmesg     = "Kernel Dmesg"
+	kernelKmsg      = "Kernel kmsg"
 	kernelTrace     = "Kernel Trace"
 	lastLogcat      = "Last Logcat"
+	last2Logcat     = "Last2 Logcat"
 	locationLog     = "Location"
 	powerMonitorLog = "Power Monitor"
 	systemLog       = "System"
@@ -78,6 +80,10 @@ const (
 	bugreport2FT   = "bugreport2"
 	kernelFT       = "kernel"
 	powerMonitorFT = "powermonitor"
+	kmsgFT         = "kmsg"
+	systemFT       = "system"
+	eventFT        = "androidevent"
+	radioFT        = "radio"
 )
 
 var (
@@ -507,6 +513,34 @@ func HTTPAnalyzeHandler(w http.ResponseWriter, r *http.Request) {
 					fname = n
 					break contentLoop
 				}
+			case "kmsg":
+				//if kmsg.Iskmsg(f) {
+					valid = true
+					contents = f
+					fname = n
+					break contentLoop
+				//}
+			case "system":
+				//if system.IsSystem(f) {
+					valid = true
+					contents = f
+					fname = n
+					break contentLoop
+				//}
+			case "androidevent":
+				//if event.IsEvent(f) {
+					valid = true
+					contents = f
+					fname = n
+					break contentLoop
+				//}
+			case "radio":
+				//if radio.IsRadio(f) {
+					valid = true
+					contents = f
+					fname = n
+					break contentLoop
+				//}
 			case "kernel":
 				if kernel.IsTrace(f) {
 					valid = true
@@ -550,16 +584,63 @@ func AnalyzeAndResponse(w http.ResponseWriter, r *http.Request, files map[string
 	pd.SendAsJSON(w, r)
 }
 
+
+const (
+	Last2LogcatSection = "------ LAST2 LOGCAT (logcat -L -b all -v threadtime -v printable -d *:v) ------\n"
+	Last2System = "--------- beginning of system\n"
+	Last2Event = "--------- beginning of event\n"
+	Last2Radio = "--------- beginning of radio\n"
+)
+//append kmsg 
+func AppendBugreport(files map[string]UploadedFile, fileB *UploadedFile) [] byte{
+	/*fB, okB := files[bugreportFT]
+	if !okB {
+		log.Printf("missing bugreport file, restruct bugreport for separate analysis")
+	}*/
+
+	res := []byte (Last2LogcatSection)
+	if fsystem, ok := files[systemFT]; ok {
+		res = append(res, []byte(Last2System)...)
+		res = append(res, fsystem.Contents...)
+	}
+	if fevent, ok := files[eventFT]; ok {
+		res = append(res, []byte(Last2Event)...)
+		res = append(res, fevent.Contents...)
+	}
+	if fradio, ok := files[radioFT]; ok {
+		res = append(res, []byte(Last2Radio)...)
+		res = append(res, fradio.Contents...)
+	}
+	//TODO
+	//if fkmg, ok := files[kmsgFT]; ok {
+	//}
+	// Reached the end of the logs. Output any pending events.
+	fileB.Contents = append(fileB.Contents, res...)
+	return res
+}
+
 // AnalyzeFiles processes and analyzes the list of uploaded files.
 func (pd *ParsedData) AnalyzeFiles(files map[string]UploadedFile) error {
+
 	fB, okB := files[bugreportFT]
 	if !okB {
 		return errors.New("missing bugreport file")
 	}
 
-	// Parse the bugreport.
+	// append the kmsg to bugreport.
+	// append the system.
+	// append the event.
+	// append the radio.
+	// append the bugreport.
+    /*res := */AppendBugreport(files, &fB)
+	fkmg, okK := files[kmsgFT]
+    if !okK {
+		//fkmg = UploadedFile{"kmsg", "null", []byte("null")}
+    }
+    //fB.Contents = append(fB.Contents, res...)
+
 	fB2 := files[bugreport2FT]
-	if err := pd.parseBugReport(fB.FileName, string(fB.Contents), fB2.FileName, string(fB2.Contents)); err != nil {
+	if err := pd.parseBugReport(fB.FileName, string(fB.Contents), fB2.FileName, string(fB2.Contents), fkmg.FileName, string(fkmg.Contents)); err != nil {
 		return fmt.Errorf("error parsing bugreport: %v", err)
 	}
 	// Write the bug report to a file in case we need it to process a kernel trace file.
@@ -656,7 +737,7 @@ func writeTempFile(contents string) (string, error) {
 // contentsB is an optional second bug report. If it's given and the Android IDs and batterystats
 // checkin start times are the same, a diff of the checkins will be saved, otherwise, they will be
 // saved as separate reports.
-func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string) error {
+func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB, fnameKmsg, contentsKmsg string) error {
 
 	doActivity := func(ch chan activity.LogsData, contents string, pkgs []*usagepb.PackageInfo) {
 		ch <- activity.Parse(pkgs, contents)
@@ -789,6 +870,7 @@ func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string
 		activityManagerCh := make(chan activity.LogsData)
 		broadcastsCh := make(chan csvData)
 		dmesgCh := make(chan dmesg.Data)
+		kmsgCh := make(chan dmesg.Data)
 		wearableCh := make(chan string)
 		var checkinL, checkinE checkinData
 		var warnings []string
@@ -835,6 +917,7 @@ func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string
 			go doActivity(activityManagerCh, late.contents, pkgsL)
 			go doBroadcasts(broadcastsCh, late.contents)
 			go doDmesg(dmesgCh, late.contents)
+			go doDmesg(kmsgCh, contentsKmsg)
 			go doWearable(wearableCh, late.dt.Location().String(), late.contents)
 			go doSummaries(summariesCh, bsL, pkgsL)
 
@@ -864,6 +947,7 @@ func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string
 		var activityManagerOutput activity.LogsData
 		var broadcastsOutput csvData
 		var dmesgOutput dmesg.Data
+		var kmsgOutput dmesg.Data
 		var wearableOutput string
 
 		if supV {
@@ -871,8 +955,9 @@ func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string
 			activityManagerOutput = <-activityManagerCh
 			broadcastsOutput = <-broadcastsCh
 			dmesgOutput = <-dmesgCh
+			kmsgOutput = <-kmsgCh
 			wearableOutput = <-wearableCh
-			errs = append(errs, append(broadcastsOutput.errs, append(dmesgOutput.Errs, append(summariesOutput.errs, activityManagerOutput.Errs...)...)...)...)
+			errs = append(errs, append(broadcastsOutput.errs, append(dmesgOutput.Errs, append(kmsgOutput.Errs, append(summariesOutput.errs, activityManagerOutput.Errs...)...)...)...)...)
 		}
 
 		warnings = append(warnings, activityManagerOutput.Warnings...)
@@ -901,6 +986,11 @@ func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string
 				StartMs: dmesgOutput.StartMs,
 			},
 			{
+				Source:  kernelKmsg,
+				CSV:     kmsgOutput.CSV,
+				StartMs: kmsgOutput.StartMs,
+			},
+			{
 				Source: broadcastsLog,
 				CSV:    broadcastsOutput.csv,
 			},
@@ -918,6 +1008,8 @@ func (pd *ParsedData) parseBugReport(fnameA, contentsA, fnameB, contentsB string
 				source = systemLog
 			case activity.LastLogcatSection:
 				source = lastLogcat
+			case activity.Last2LogcatSection:
+				source = last2Logcat
 			default:
 				log.Printf("Logcat section %q not handled", s)
 				// Show it anyway.

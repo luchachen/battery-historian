@@ -100,6 +100,8 @@ const (
 	SystemLogSection = "SYSTEM LOG"
 	// LastLogcatSection is the heading found in the log line before the start of the last logcat section.
 	LastLogcatSection = "LAST LOGCAT"
+	// Last2LogcatSection is the heading found in the log line before the start of the last2 logcat section.
+	Last2LogcatSection = "LAST2 LOGCAT"
 )
 
 // Log contains the CSV generated from the log as well as the start time of the log.
@@ -248,6 +250,8 @@ func Parse(pkgs []*usagepb.PackageInfo, f string) LogsData {
 				section = SystemLogSection
 			case strings.HasPrefix(s, LastLogcatSection):
 				section = LastLogcatSection
+			case strings.HasPrefix(s, Last2LogcatSection):
+				section = Last2LogcatSection
 			default:
 				continue // Not a log section we're interested in.
 			}

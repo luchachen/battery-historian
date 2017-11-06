@@ -34,6 +34,26 @@ specific language governing permissions and limitations under the License.
       <span class="glyphicon glyphicon-plus"></span>
       Power Monitor File
     </div>
+    <div class="btn btn-default btn-file btn-xs extra-option" id="add-kmsg">
+      <span class="glyphicon glyphicon-plus"></span>
+      kmsg File
+    </div>
+
+    <div class="btn btn-default btn-file btn-xs extra-option" id="add-system">
+      <span class="glyphicon glyphicon-plus"></span>
+      logcat -b system File
+    </div>
+
+    <div class="btn btn-default btn-file btn-xs extra-option" id="add-androidevent">
+      <span class="glyphicon glyphicon-plus"></span>
+      logcat -b event File
+    </div>
+
+    <div class="btn btn-default btn-file btn-xs extra-option" id="add-radio">
+      <span class="glyphicon glyphicon-plus"></span>
+      logcat -b radio  File
+    </div>
+
     <div class="btn btn-default btn-file btn-xs extra-option" id="add-comparison">
       <span class="glyphicon glyphicon-chevron-right"></span>
       Switch to Bugreport Comparison
@@ -68,6 +88,42 @@ specific language governing permissions and limitations under the License.
         </span>
         <span id="powermonitor-filename" class="filename">Choose a Power Monitor File</span>
         <span class="btn btn-default glyphicon glyphicon-remove" id="remove-powermonitor"></span>
+      </div>
+      <div id="kmsg-option" style="display: none;">
+        <span class="btn btn-default btn-file btn-browse">
+          <span class="glyphicon glyphicon-folder-open"></span>
+          Browse
+          <input type="file" name="kmsg" id="kmsg">
+        </span>
+        <span id="kmsg-filename" class="filename">Choose a kmsg File</span>
+        <span class="btn btn-default glyphicon glyphicon-remove" id="remove-kmsg"></span>
+      </div>
+      <div id="system-option" style="display: none;">
+        <span class="btn btn-default btn-file btn-browse">
+          <span class="glyphicon glyphicon-folder-open"></span>
+          Browse
+          <input type="file" name="system" id="system">
+        </span>
+        <span id="system-filename" class="filename">Choose a logcat -b system File</span>
+        <span class="btn btn-default glyphicon glyphicon-remove" id="remove-system"></span>
+      </div>
+      <div id="androidevent-option" style="display: none;">
+        <span class="btn btn-default btn-file btn-browse">
+          <span class="glyphicon glyphicon-folder-open"></span>
+          Browse
+          <input type="file" name="androidevent" id="androidevent">
+        </span>
+        <span id="androidevent-filename" class="filename">Choose a logcat -b event File</span>
+        <span class="btn btn-default glyphicon glyphicon-remove" id="remove-androidevent"></span>
+      </div>
+      <div id="radio-option" style="display: none;">
+        <span class="btn btn-default btn-file btn-browse">
+          <span class="glyphicon glyphicon-folder-open"></span>
+          Browse
+          <input type="file" name="radio" id="radio">
+        </span>
+        <span id="radio-filename" class="filename">Choose a logcat -b radio File</span>
+        <span class="btn btn-default glyphicon glyphicon-remove" id="remove-radio"></span>
       </div>
     </fieldset>
 

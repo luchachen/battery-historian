@@ -33,7 +33,11 @@ historian.upload.fileEntries_ = [
   'bugreport',
   'bugreport2',
   'kernel',
-  'powermonitor'
+  'powermonitor',
+  'androidevent',
+  'kmsg',
+  'system',
+  'radio'
 ];
 
 
@@ -97,6 +101,93 @@ historian.upload.hidePowerMonitorOption_ = function() {
   $('#powermonitor').val('');
 };
 
+/**
+ * Shows the extra file option for kmsg file.
+ * @private
+ */
+historian.upload.showKmsgOption_ = function() {
+  $('#add-kmsg').hide();
+  $('#kmsg-option').show();
+  $('#kmsg-filename').text('Choose a kmsg  File');
+};
+
+
+/**
+ * Hides the extra file option for Kmsg file.
+ * @private
+ */
+historian.upload.hideKmsgOption_ = function() {
+  $('#add-kmsg').show();
+  $('#kmsg-option').hide();
+  $('#kmsg').val('');
+};
+
+/**
+ * Shows the extra file option for system file.
+ * @private
+ */
+historian.upload.showSystemOption_ = function() {
+  $('#add-system').hide();
+  $('#system-option').show();
+  $('#system-filename').text('Choose a logcat -b system File');
+};
+
+
+/**
+ * Hides the extra file option for system file.
+ * @private
+ */
+historian.upload.hideSystemOption_ = function() {
+  $('#add-system').show();
+  $('#system-option').hide();
+  $('#system').val('');
+};
+
+/**
+ * Shows the extra file option for android event file.
+ * @private
+ */
+historian.upload.showAndroidEventOption_ = function() {
+  $('#add-androidevent').hide();
+  $('#androidevent-option').show();
+  $('#androidevent-filename').text('Choose a logcat -b event File');
+};
+
+
+/**
+ * Hides the extra file option for android event file.
+ * @private
+ */
+historian.upload.hideAndroidEventOption_ = function() {
+  $('#add-androidevent').show();
+  $('#androidevent-option').hide();
+  $('#androidevent').val('');
+};
+
+
+
+/**
+ * Shows the extra file option for radio file.
+ * @private
+ */
+historian.upload.showRadioOption_ = function() {
+  $('#add-radio').hide();
+  $('#radio-option').show();
+  $('#radio-filename').text('Choose a logcat -b radio File');
+};
+
+
+/**
+ * Hides the extra file option for radio file.
+ * @private
+ */
+historian.upload.hideRadioOption_ = function() {
+  $('#add-radio').show();
+  $('#radio-option').hide();
+  $('#radio').val('');
+};
+
+
 
 /**
  * Shows the extra file option for A/B comparison.
@@ -104,7 +195,7 @@ historian.upload.hidePowerMonitorOption_ = function() {
  */
 historian.upload.showComparisonOption_ = function() {
   $('#comparison-option').show();
-  $('#add-kernel, #add-powermonitor, #add-comparison').hide();
+  $('#add-kernel, #add-powermonitor, #add-androidevent, #add-comparison').hide();
   $('#kernel-option, #powermonitor-option').hide();
 };
 
@@ -115,7 +206,7 @@ historian.upload.showComparisonOption_ = function() {
  */
 historian.upload.hideComparisonOption_ = function() {
   $('#comparison-option').hide();
-  $('#add-kernel, #add-powermonitor, #add-comparison').show();
+  $('#add-kernel, #add-powermonitor, #add-androidevent, #add-comparison').show();
   $('#bugreport2').val('');
 };
 
@@ -146,6 +237,18 @@ historian.upload.initialize = function() {
   $('#add-powermonitor').click(function() {
     historian.upload.showPowerMonitorOption_();
   });
+  $('#add-kmsg').click(function() {
+    historian.upload.showKmsgOption_();
+  });
+  $('#add-system').click(function() {
+    historian.upload.showSystemOption_();
+  });
+  $('#add-androidevent').click(function() {
+    historian.upload.showAndroidEventOption_();
+  });
+  $('#add-radio').click(function() {
+    historian.upload.showRadioOption_();
+  });
   $('#add-comparison').click(function() {
     historian.upload.showComparisonOption_();
   });
@@ -155,6 +258,18 @@ historian.upload.initialize = function() {
   });
   $('#remove-powermonitor').click(function() {
     historian.upload.hidePowerMonitorOption_();
+  });
+  $('#remove-kmsg').click(function() {
+    historian.upload.hideKmsgOption_();
+  });
+  $('#remove-system').click(function() {
+    historian.upload.hideSystemOption_();
+  });
+  $('#remove-radio').click(function() {
+    historian.upload.hideRadioOption_();
+  });
+  $('#remove-androidevent').click(function() {
+    historian.upload.hideAndroidEventOption_();
   });
   $('#remove-comparison').click(function() {
     historian.upload.hideComparisonOption_();
@@ -169,6 +284,26 @@ historian.upload.initialize = function() {
     var filename = event.target.files[0].name;
     if (!filename) filename = '';
     $('#powermonitor-filename').text(filename);
+  });
+  $('#kmsg').on('change', function(event) {
+    var filename = event.target.files[0].name;
+    if (!filename) filename = '';
+    $('#kmsg-filename').text(filename);
+  });
+  $('#system').on('change', function(event) {
+    var filename = event.target.files[0].name;
+    if (!filename) filename = '';
+    $('#system-filename').text(filename);
+  });
+  $('#androidevent').on('change', function(event) {
+    var filename = event.target.files[0].name;
+    if (!filename) filename = '';
+    $('#androidevent-filename').text(filename);
+  });
+  $('#radio').on('change', function(event) {
+    var filename = event.target.files[0].name;
+    if (!filename) filename = '';
+    $('#radio-filename').text(filename);
   });
   $('#bugreport2').on('change', function(event) {
     var filename = event.target.files[0].name;
